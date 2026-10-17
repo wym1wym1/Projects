@@ -7,9 +7,13 @@ numbers_specialcharacters = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '
 characters = [
     'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'
     ]
-
+GREEN = "\033[92m"
+RED   = "\033[91m"
+CYAN  = "\033[96m"
+RESET = "\033[0m"
 
 def main():
+    make_file()
     choices = {
         '1': show_object,
         '2': add_object,
@@ -31,9 +35,15 @@ def main():
     if user_choice:
         user_choice()
     else:
-        print('Invalid choice!')
+        print(f"{RED}Invalid choice!{RESET}")
 
-
+def make_file():
+    FIELDS = ["website", "email", "username", "password"]
+    try:
+        with open("accounts.csv", "x", newline="") as file:
+            csv.DictWriter(file, fieldnames=FIELDS).writeheader()
+    except FileExistsError:
+        pass
 
 
 def add_object():
@@ -54,6 +64,7 @@ def add_object():
             username,
             password
         ])
+    print(f"{GREEN}Account added successfully!{RESET}")
 
     
 
@@ -64,7 +75,7 @@ def show_object():
     
             print(tabulate(rows, headers="keys", tablefmt="rounded_grid"))
     if not rows:
-        print('No accounts found!')
+        print(f'{RED}No accounts found!{RESET}')
 
 
 def check_password(password):
@@ -75,8 +86,8 @@ def check_password(password):
     any(char.isupper() for char in password),
     ]
 
-    if password.lower() == 'hangman':  # this is the condition to play hangman, if u like to change it tell
-        play = input('Play hangman? Y/N: ').lower()
+    if password.lower() == 'hangman': 
+        play = input(f"{CYAN}Play hangman? Y/N: {RESET}").lower()
         if play == 'y':
             hangman()
         
@@ -162,6 +173,11 @@ def update_object():
     field = fields[choice]
 
     row[field] = input(f"Enter the new {field}: ")
+
+    if field == 'password' and row[field] == 'hangman': 
+        play = input(f"{CYAN}Play hangman? Y/N: {RESET}").lower()
+        if play == 'y':
+            hangman()
 
     with open("accounts.csv", "w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=[
@@ -252,8 +268,8 @@ def hangman():
                     print (f'\nAttempts left: {attempts}')
                     continue
                 elif attempts == 0:
-                    print (f'you lost! the word was:\n{word}')
-                    exit()
+                    print (f'{RED}you lost! the word was:\n{word}{RESET}')
+                    return
 
                 else:
                     attempts -= 1
@@ -269,6 +285,7 @@ def hangman():
             win = solved(display)
             if win:
                 print('You win!')
+                return
     Play_H()
 
  
